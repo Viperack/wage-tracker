@@ -1,10 +1,10 @@
 import 'job.dart';
 import 'supplementary_pay.dart';
+import 'jobs_supplementary_pay_rel.dart';
 import 'home/add_job_page.dart';
 import 'home/job_card.dart';
 
 import 'package:flutter/material.dart';
-import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -12,52 +12,39 @@ import 'package:sqflite/sqflite.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Create databases
   final jobsDatabase = openDatabase(
     join(await getDatabasesPath(), 'jobs_database.db'),
-
     onCreate: (db, version) {
-      // Run the CREATE TABLE statement on the database.
       return db.execute(
         'CREATE TABLE jobs(id INTEGER PRIMARY KEY, name TEXT, hourlyWage INTEGER, supplementaryPayId INTEGER)',
       );
     },
-    // Set the version. This executes the onCreate function and provides a
-    // path to perform database upgrades and downgrades.
     version: 1,
   );
 
   final supplementaryPayDatabase = openDatabase(
     join(await getDatabasesPath(), 'supplementary_pay_database.db'),
-
     onCreate: (db, version) {
-      // Run the CREATE TABLE statement on the database.
       return db.execute(
         'CREATE TABLE supplementary_pay(id INTEGER PRIMARY KEY, supplementaryPay INTEGER, supplementaryPayStartTime INTEGER, supplementaryPayEndTime INTEGER)',
       );
     },
-    // Set the version. This executes the onCreate function and provides a
-    // path to perform database upgrades and downgrades.
     version: 1,
   );
 
-  /*
-  final int id;
-  final String name;
-  final int hourlyWage;
-  final int supplementaryPayId;
-
-  final int id;
-  final int supplementaryPay;
-  final int supplementaryPayStartTime;
-  final int supplementaryPayEndTime;
-   */
+  final jobsSupplementaryPayRel = openDatabase(
+    join(await getDatabasesPath(), 'jobs_supplementary_pay_rel_database.db'),
+    onCreate: (db, version) {
+      return db.execute(
+        'CREATE TABLE supplementary_pay(id INTEGER PRIMARY KEY, jobId INTEGER, supplementaryPayId INTEGER)',
+      );
+    },
+    version: 1,
+  );
 
   List<String> workplaces = ["OKQ8", "Budbee"];
-  runApp(MaterialApp(
-      home: MyApp(workplaces: workplaces),
-      routes: <String, WidgetBuilder>{
-        "/add_job_page": (BuildContext context) => AddJobPage(),
-      }));
+  runApp(MyApp(workplaces: workplaces));
 }
 
 class MyApp extends StatelessWidget {
@@ -114,24 +101,35 @@ class HomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    const title = 'Grid List';
+    const title = 'Jobs';
+
     return MaterialApp(
       title: title,
       home: Scaffold(
         appBar: AppBar(
           title: const Text(title),
         ),
-        body: GridView.count(
-          // Creates a grid with 2 columns.
-          crossAxisCount: 2,
-          children: List.generate(numOfWorkplaces + 1, (index) {
-            return JobCard(
-                workplace: (index != numOfWorkplaces)
-                    ? workplaces[index]
-                    : "Add new job");
-          }),
+        body: Column(
+          children: [
+            Flexible(
+              child: GridView.count(
+                // Creates a grid with 2 columns.
+                crossAxisCount: 2,
+                children: List.generate(numOfWorkplaces + 1, (index) {
+                  return JobCard(
+                      workplace: (index != numOfWorkplaces)
+                          ? workplaces[index]
+                          : "Add new job");
+                }),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
+
+/*
+
+ */

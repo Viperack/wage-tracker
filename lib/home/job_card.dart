@@ -15,8 +15,13 @@ class JobCard extends StatelessWidget {
         child: InkWell(
           splashColor: Colors.blue.withAlpha(30),
           onTap: () {
+            // TODO: Make each JobCard direct to the right page
             debugPrint('${workplace} card tapped.');
-            Navigator.of(context).pushNamed("/add_job_page");
+            // Navigator.of(context).pushNamed("/add_job_page");
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AddJobPage()),
+            );
           },
           child: SizedBox(
             width: 300,
